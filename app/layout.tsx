@@ -1,15 +1,36 @@
-import React from 'react';
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
 
-export default function Layout({ children }) {
-    return (
-        <div>
-            <head>
-                <title>AfriSendIQ</title>
-                <meta name="description" content="AfriSendIQ" />
-                <link rel="icon" href="/logos/AfriSendIQ Logo.png" />
-                <link rel="apple-touch-icon" href="/logos/AfriSendIQ Logo.png" />
-            </head>
-            {children}
-        </div>
-    );
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "AfriSendIQ",
+  description: "AI-powered transfer provider rankings",
+  icons: {
+    icon: "/logos/afrisendiq-logo.png",
+    apple: "/logos/afrisendiq-logo.png",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> 
+        {children}
+      </body>
+    </html>
+  );
 }
