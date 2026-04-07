@@ -1,22 +1,36 @@
 import { NextResponse } from "next/server"
+import { convertUsdAmount } from "@/app/lib/fx"
 
 export async function POST(req: Request) {
-
   const body = await req.json()
+  const amount = Number(body.amount)
+  const currencyCode = typeof body.currencyCode === "string" ? body.currencyCode : "XOF"
 
-  const { amount } = body
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return NextResponse.json(
+      { success: false, error: "A positive amount is required" },
+      { status: 400 }
+    )
+  }
 
-  // call internal FX API
-  const res = await fetch("http://localhost:3000/api/fx")
+  try {
+    const conversion = await convertUsdAmount(amount, currencyCode)
 
-  const data = await res.json()
-
-  const rate = data.rates["XOF"]
-
-  const converted = amount * rate
-
-  return NextResponse.json({
-    rate,
-    converted
-  })
+    return NextResponse.json({
+      success: true,
+      currencyCode: conversion.currencyCode,
+      rate: conversion.rate,
+      converted: conversion.converted,
+      source: conversion.source,
+      stale: conversion.stale
+    })
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Unable to compare rates"
+      },
+      { status: 400 }
+    )
+  }
 }

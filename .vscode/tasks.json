@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Validate current Next build",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				".\\node_modules\\next\\dist\\bin\\next",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}

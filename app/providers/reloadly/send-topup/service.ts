@@ -1,14 +1,25 @@
+import { getReloadlyToken } from "@/app/lib/reloadlyAuth"
+
+type SendAirtimeInput = {
+  operatorId: number
+  phone: string
+  amount: number
+  reference: string
+}
+
 export async function sendAirtime({
   operatorId,
   phone,
   amount,
   reference
-}: any) {
+}: SendAirtimeInput) {
+  const token = await getReloadlyToken()
+  const normalizedPhone = String(phone).replace(/\D/g, "").replace(/^225/, "")
 
   const res = await fetch("https://topups.reloadly.com/topups", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.RELOADLY_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
@@ -18,10 +29,14 @@ export async function sendAirtime({
       customIdentifier: reference,
       recipientPhone: {
         countryCode: "CI",
-        number: phone.replace("+225", "")
+        number: normalizedPhone
       }
     })
   })
+
+  if (!res.ok) {
+    throw new Error(`Reloadly airtime purchase failed with status ${res.status}`)
+  }
 
   return res.json()
 }

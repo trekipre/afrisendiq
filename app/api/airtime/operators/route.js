@@ -1,4 +1,4 @@
-import { getReloadlyToken } from "@/lib/reloadly"
+import { getReloadlyToken } from "@/app/lib/reloadly"
 
 export async function GET() {
 

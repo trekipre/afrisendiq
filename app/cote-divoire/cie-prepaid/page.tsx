@@ -1,0 +1,1 @@
+export { default } from "@/app/cote-divoire/electricity/page"

@@ -1,46 +1,18 @@
-let accessToken: string | null = null
-let tokenExpiry = 0
+import { getReloadlyToken } from "./reloadlyAuth"
 
-export async function getReloadlyToken() {
+export { getReloadlyToken }
 
-  const now = Date.now()
-
-  if (accessToken && now < tokenExpiry) {
-    return accessToken
-  }
-
-  const response = await fetch(
-    "https://auth.reloadly.com/oauth/token",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        client_id: process.env.RELOADLY_CLIENT_ID,
-        client_secret: process.env.RELOADLY_CLIENT_SECRET,
-        grant_type: "client_credentials",
-        audience: "https://topups.reloadly.com"
-      })
-    }
-  )
-
-  const data = await response.json()
-
-  accessToken = data.access_token
-  tokenExpiry = Date.now() + data.expires_in * 1000
-
-  return accessToken
+function normalizePhone(phone: string) {
+  return phone.replace(/\D/g, "")
 }
-
 
 // Detect mobile operator
 export async function detectOperator(phone: string) {
-
   const token = await getReloadlyToken()
+  const normalizedPhone = normalizePhone(phone)
 
   const res = await fetch(
-   `https://topups.reloadly.com/operators/auto-detect/phone/${phone.replace("+","")}/countries/CI`,
+   `https://topups.reloadly.com/operators/auto-detect/phone/${normalizedPhone}/countries/CI`,
     {
       headers: {
         Authorization: `Bearer ${token}`
@@ -48,16 +20,20 @@ export async function detectOperator(phone: string) {
     }
   )
 
+  if (!res.ok) {
+    throw new Error(`Reloadly operator detection failed with status ${res.status}`)
+  }
+
   const data = await res.json()
 
   return {
     name: data.name,
-    id: data.operatorId
+    operatorId: data.operatorId,
+    countryCode: "CI"
   }
 }
 // Get balance
 export async function getReloadlyBalance() {
-
   const token = await getReloadlyToken()
 
   const response = await fetch(
@@ -69,6 +45,10 @@ export async function getReloadlyBalance() {
       }
     }
   )
+
+  if (!response.ok) {
+    throw new Error(`Reloadly balance lookup failed with status ${response.status}`)
+  }
 
   const data = await response.json()
 
@@ -82,8 +62,8 @@ export async function sendTopup(
   amount: number
 ) {
   const reference = "ASIQ-" + Date.now()
-
   const token = await getReloadlyToken()
+  const normalizedPhone = normalizePhone(phone)
 
   const response = await fetch(
   "https://topups.reloadly.com/topups",
@@ -100,12 +80,15 @@ export async function sendTopup(
       customIdentifier: reference,
       recipientPhone: {
         countryCode: "CI",
-        number: phone
+        number: normalizedPhone.replace(/^225/, "")
       }
     })
   }
 )
  
+  if (!response.ok) {
+    throw new Error(`Reloadly topup failed with status ${response.status}`)
+  }
 
   return response.json()
 }

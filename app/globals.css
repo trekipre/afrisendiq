@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #07120d;
+  --foreground: #e9fff7;
+  --surface: rgba(255, 255, 255, 0.08);
+  --surface-strong: rgba(255, 255, 255, 0.12);
+  --border-soft: rgba(255, 255, 255, 0.14);
+  --accent: #52d3a6;
+  --accent-strong: #0f8b6d;
+  --ink-deep: #082017;
 }
 
 @theme inline {
@@ -12,17 +18,93 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  background-image:
+    radial-gradient(circle at top, rgba(28, 120, 90, 0.34) 0%, rgba(8, 23, 17, 0) 42%),
+    linear-gradient(180deg, #0a1f18 0%, #07120d 54%, #050d09 100%);
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at top, rgba(0, 0, 0, 0.85), transparent 78%);
+  opacity: 0.22;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+::selection {
+  background: rgba(82, 211, 166, 0.24);
+  color: #f7fffb;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(82, 211, 166, 0.92);
+  outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+  box-shadow: 0 1px 0 rgba(8, 32, 23, 0.04);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: rgba(15, 139, 109, 0.34);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(15, 139, 109, 0.58);
+  box-shadow: 0 0 0 4px rgba(82, 211, 166, 0.16);
+}
+
+button:hover,
+.interactive-lift:hover {
+  transform: translateY(-1px);
+}
+
+.site-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.site-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at top right, rgba(82, 211, 166, 0.08), transparent 28%);
+  z-index: -1;
 }
 
  @keyframes cardFade {
